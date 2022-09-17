@@ -1,21 +1,26 @@
 import type { NextPage } from 'next';
 import { GetStaticProps } from 'next';
 
-import { Layout } from '../components/layouts';
+import { Grid } from '@nextui-org/react';
 
-const HomePage: NextPage = (props) => {
-	console.log(props);
+import { pokeApi } from '../api';
+import { Layout } from '../components/layouts';
+import { PokemonCard } from '../components/pokemon';
+import { PokemonListResponse, SmallPokemon } from '../interfaces';
+
+interface Props {
+	pokemons: SmallPokemon[];
+}
+
+const HomePage: NextPage<Props> = ({ pokemons }) => {
 	return (
 		<>
 			<Layout title='Listado de Pokémons'>
-				<ul>
-					<li>Pokémon</li>
-					<li>Pokémon</li>
-					<li>Pokémon</li>
-					<li>Pokémon</li>
-					<li>Pokémon</li>
-					<li>Pokémon</li>
-				</ul>
+				<Grid.Container gap={2} justify='center'>
+					{pokemons.map((pokemon) => (
+						<PokemonCard key={pokemon.id} pokemon={pokemon} />
+					))}
+				</Grid.Container>
 			</Layout>
 		</>
 	);
@@ -30,13 +35,21 @@ export default HomePage;
 //- The page must be pre-rendered (for SEO) and be very fast — getStaticProps generates HTML and JSON files, both of which can be cached by a CDN for performance.
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
-	// const { data } = await  // your fetch function here
+	const {
+		data: { results },
+	} = await pokeApi.get<PokemonListResponse>('/pokemon?limit=151');
 
-	console.log('hello world');
+	const pokemons: SmallPokemon[] = results.map((pokemon, i) => ({
+		...pokemon,
+		id: i + 1,
+		img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${
+			i + 1
+		}.svg`,
+	}));
 
-	return {
+	https: return {
 		props: {
-			name: 'Fernando',
+			pokemons,
 		},
 	};
 };
