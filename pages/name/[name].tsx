@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 
 import confetti from 'canvas-confetti';
-import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 
 import { pokeApi } from '../../api';
 import { Layout } from '../../components/layouts';
 import PokemonData from '../../components/pokemon/PokemonData';
-import { Pokemon } from '../../interfaces';
+import { Pokemon, PokemonListResponse } from '../../interfaces';
 import { localFavorites } from '../../utils';
 
 interface Props {
 	pokemon: Pokemon;
 }
 
-const PokemonPage: NextPage<Props> = ({ pokemon }) => {
+function PokemonByNamePage({ pokemon }: Props) {
 	const [isFavorite, setIsFavorite] = useState(false);
 
 	const toggleFavorite = () => {
@@ -47,23 +47,29 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
 			/>
 		</Layout>
 	);
-};
+}
 
-// You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
+export default PokemonByNamePage;
+
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-	const pokemons = [...Array(151)].map((value, index) => `${index + 1}`);
+	const {
+		data: { results },
+	} = await pokeApi.get<PokemonListResponse>(`/pokemon?limit=151`);
+
+	const paths = results.map((pokemon) => ({
+		params: { name: pokemon.name },
+	}));
+
 	return {
-		paths: pokemons.map((id) => ({
-			params: { id },
-		})),
+		paths,
 		fallback: false,
 	};
 };
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
-	const { id } = ctx.params as { id: string };
+	const { name } = ctx.params as { name: string };
 
-	const { data } = await pokeApi.get<Pokemon>(`/pokemon/${id}`);
+	const { data } = await pokeApi.get<Pokemon>(`/pokemon/${name}`);
 
 	const pokemon = {
 		id: data.id,
@@ -77,5 +83,3 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
 		},
 	};
 };
-
-export default PokemonPage;

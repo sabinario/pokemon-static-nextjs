@@ -23,5 +23,9 @@ const checkPokemonIsFavorite = (id: number): boolean => {
 	return favorites.includes(id);
 };
 
+const pokemons = (): number[] => {
+	return JSON.parse(localStorage.getItem('favorites') || '[]');
+};
+
 // eslint-disable-next-line import/no-anonymous-default-export
-export default { checkPokemonIsFavorite, toggleFavorite };
+export default { checkPokemonIsFavorite, toggleFavorite, pokemons };
