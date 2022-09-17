@@ -15,12 +15,12 @@ export function PokemonCard({ pokemon }: Props) {
 
 	const router = useRouter();
 
-	const onClick = () => {
+	const onPokemonClick = () => {
 		router.push(`/pokemon/${id}`);
 	};
 	return (
 		<Grid key={id} xs={6} sm={4} lg={2} md={3}>
-			<Card isHoverable isPressable onClick={onClick}>
+			<Card isHoverable isPressable onPress={onPokemonClick}>
 				<Card.Body css={{ p: 1 }}>
 					<Card.Image src={img} width='100%' height={140} css={{ p: 10 }} />
 				</Card.Body>
